@@ -51,7 +51,7 @@ cat <<EOF | sudo tee -a /etc/prometheus/prometheus.yml
     metrics_path: /metrics
     scheme: http
     static_configs:
-      - targets: ["192.168.146.133:9117"]
+      - targets: ["0.0.0.0:9117"]
 EOF
 
 #Restart the Prometheus.service
