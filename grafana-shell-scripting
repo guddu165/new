@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Update apt packages
+sudo apt-get update
+
+#download the Grafana from its official website
+sudo apt-get install -y adduser libfontconfig1 musl
+sudo wget https://dl.grafana.com/enterprise/release/grafana-enterprise_11.0.0_amd64.deb
+sudo dpkg -i grafana-enterprise_11.0.0_amd64.deb
+
+# Start Grafana server
+sudo systemctl start grafana-server
+
+# Enable Grafana service to start on boot
+sudo systemctl enable grafana-server
+
+#status of Grafana server
+sudo systemctl status grafana-server
+
+echo "grafana has been installed and started successfully."
