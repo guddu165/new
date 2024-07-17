@@ -1,0 +1,65 @@
+groups:
+  - name: node-exporter alert_rules
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance [{{ $labels.instance }}] down"
+          description: "[{{ $labels.instance }}] of job [{{ $labels.job }}] has been down for more than 1 minute."
+
+      - alert: HighDiskUsage
+        expr: (node_filesystem_size_bytes{fstype="ext4"} - node_filesystem_free_bytes{fstype="ext4"}) / node_filesystem_size_bytes{fstype="ext4"} > 0.8
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High Disk Usage"
+          description: "Disk usage is {{ humanize $value }}% which is above 80% threshold."
+
+      - alert: LowDiskSpace
+        expr: node_filesystem_free_bytes{fstype="ext4"} / node_filesystem_size_bytes{fstype="ext4"} < 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low Disk Space"
+          description: "Disk free space is {{ humanize $value }}% which is below 10% threshold."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory Usage"
+          description: "Memory usage is {{ humanize $value }}% which is above 80% threshold."
+
+      - alert: HighNetworkTraffic
+        expr: (rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m])) / 1024 / 1024 > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Network Traffic"
+          description: "Network traffic is {{ humanize $value }} MB/s which is above 1000 MB/s threshold."
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU Usage"
+          description: "CPU usage is {{ humanize $value }}% which is above 80% threshold."
+
+      - alert: HighRAMUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High RAM Usage"
+          description: "RAM usage is {{ humanize $value }}% which is above 80% threshold."
