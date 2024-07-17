@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#Update apt packages 
+sudo apt-get update
+
+#Installation of apache_exporter
+curl -s https://api.github.com/repos/Lusitaniae/apache_exporter/releases/latest   | grep browser_download_url   | grep linux-amd64 | cut -d '"' -f 4 | wget -qi -
+tar -xzvf apache_exporter-*.linux-amd64.tar.gz
+sudo cp -ivr  apache_exporter-*.linux-amd64/apache_exporter /usr/local/bin
+sudo chmod +x /usr/local/bin/apache_exporter
+apache_exporter --version
+
+#Create systemd service file for apache_exporter
+cat <<EOF | sudo tee /etc/systemd/system/apache_exporter.service
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=prometheus
+Group=prometheus
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart=/usr/local/bin/apache_exporter 
+  --insecure 
+  --scrape_uri=http://192.168.146.133/server-status/?auto 
+  --telemetry.address=0.0.0.0:9117 
+  --telemetry.endpoint=/metrics
+
+SyslogIdentifier=apache_exporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+#Run the service in daemon process
+sudo systemctl daemon-reload
+
+#start the apache_exporter.service
+sudo systemctl start apache_exporter.service
+
+#Enable the service
+sudo systemctl enable apache_exporter.service
+
+# Configure apache_exporter in prometheus.yml
+cat <<EOF | sudo tee -a /etc/prometheus/prometheus.yml
+
+  - job_name: "apache_exporter"
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ["192.168.146.133:9117"]
+EOF
+
+#Restart the Prometheus.service
+sudo systemctl restart Prometheus
+
+echo "apache_exporter has been installed and started successfully."
