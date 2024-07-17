@@ -24,7 +24,7 @@ Group=prometheus
 ExecReload=/bin/kill -HUP $MAINPID
 ExecStart=/usr/local/bin/apache_exporter 
   --insecure 
-  --scrape_uri=http://192.168.146.133/server-status/?auto 
+  --scrape_uri=http://0.0.0.0/server-status/?auto 
   --telemetry.address=0.0.0.0:9117 
   --telemetry.endpoint=/metrics
 
