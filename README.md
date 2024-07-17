@@ -38,3 +38,10 @@ scrape_configs:
     scheme: http
     static_configs:
       - targets: ["0.0.0.0:9104"]
+
+  - job_name: "apache_exporter"
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ["192.168.41.143:9117"]
+
