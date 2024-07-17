@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Define version
+NODE_EXPORTER_VERSION="1.8.1"
+
+# Download node_exporter
+wget https://github.com/prometheus/node_exporter/releases/download/v1.8.1/node_exporter-1.8.1.linux-amd64.tar.gz
+
+# Extract node_exporter
+tar -xvf node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz
+
+# Move node_exporter binary
+sudo mv node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64/node_exporter /usr/local/bin/
+
+# Create systemd service file for node_exporter
+cat <<EOF | sudo tee /etc/systemd/system/node_exporter.service
+[Unit]
+Description=Node Exporter
+After=network.target
+
+[Service]
+User=prometheus
+ExecStart=/usr/local/bin/node_exporter
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Add scrape_configs for node_exporter to prometheus.yml
+cat <<EOF | sudo tee -a /etc/prometheus/prometheus.yml
+
+scrape_configs:
+  - job_name: 'node_exporter'
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: ['192.168.146.133:9100']  # Assuming node_exporter runs on the same machine on port 9100
+EOF
+
+# Reload systemd daemon
+sudo systemctl daemon-reload
+
+# Start node_exporter service
+sudo systemctl start node_exporter
+
+# Enable node_exporter service to start on boot
+sudo systemctl enable node_exporter
+
+# Clean up
+rm -rf node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64.tar.gz node_exporter-${NODE_EXPORTER_VERSION}.linux-amd64
+
+echo "node_exporter has been installed and started successfully."
