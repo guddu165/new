@@ -4,8 +4,8 @@
 MYSQLD_EXPORTER_VERSION="0.15.1"
 
 # MySQL configuration
-MYSQL_USER="gagan"
-MYSQL_PASSWORD="pass@123"
+MYSQL_USER="username"
+MYSQL_PASSWORD="password"
 MYSQL_EXPORTER_CONFIG="/etc/.mysqld_exporter.cnf"
 
 # Download mysqld_exporter
@@ -23,7 +23,7 @@ cat <<EOF | sudo tee $MYSQL_EXPORTER_CONFIG
 [client]
 user=$MYSQL_USER
 password=$MYSQL_PASSWORD
-host=192.168.146.133
+host=0.0.0.0
 EOF
 
 # set the ownership
@@ -65,7 +65,7 @@ ExecStart=/usr/local/bin/mysqld_exporter \
   --collect.perf_schema.indexiowaits \
   --collect.perf_schema.tableiowaits \
   --collect.slave_status \
-  --web.listen-address=192.168.146.133:9104
+  --web.listen-address=0.0.0.0:9104
 
 [Install]
 WantedBy=multi-user.target
@@ -87,7 +87,7 @@ cat <<EOF | sudo tee -a /etc/prometheus/prometheus.yml
     metrics_path: /metrics
     scheme: http
     static_configs:
-      - targets: ["192.168.146.133:9104"]  # assuming mysqld_exporter is running on ipaddress:9104
+      - targets: ["0.0.0.0:9104"]  # assuming mysqld_exporter is running on ipaddress:9104
 EOF
 
 # Restart Prometheus.service
