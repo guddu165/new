@@ -34,7 +34,7 @@ scrape_configs:
     metrics_path: /metrics
     scheme: http
     static_configs:
-      - targets: ['192.168.146.133:9100']  # Assuming node_exporter runs on the same machine on port 9100
+      - targets: ['0.0.0.0:9100']  # Assuming node_exporter runs on the same machine on port 9100
 EOF
 
 # Reload systemd daemon
